@@ -1,0 +1,42 @@
+name: Package
+run-name: Package
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Name and version of the package to build, formatted as <name/version>"
+        type: string
+        required: true
+      upload:
+        description: "Upload to Artifactory"
+        type: boolean
+        default: false
+
+jobs:
+  package-ubuntu:
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [clang-19, gcc-14]
+        config: [debug, release]
+    runs-on:
+      - ubuntu-24.04
+      - ${{ matrix.compiler }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Conan set home
+        run: echo "CONAN_HOME=${{ github.workspace }}/.conan" >> $GITHUB_ENV
+      - name: Conan add remotes
+        uses: http://${{ vars.GIT_HOSTNAME }}:${{ vars.GIT_PORT }}/all/workflows/conan-add-remotes@trunk
+        secrets: inherit
+      - name: Conan add local-recipes index
+        run: conan remote add local .
+      - name: Build & Upload
+        if: ${{ inputs.upload }}
+        run: python3 "${{ github.workspace }}/scripts/build.py" --profile=${{ matrix.compiler }}-${{ matrix.config }}.p --upload ${{ inputs.package }}
+      - name: Build
+        if: ${{ !inputs.upload }}
+        run: python3 "${{ github.workspace }}/scripts/build.py" --profile=${{ matrix.compiler }}-${{ matrix.config }}.p ${{ inputs.package }}
