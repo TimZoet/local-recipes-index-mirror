@@ -80,6 +80,7 @@ class EmbreeConan(ConanFile):
             tc.variables["EMBREE_ISA_AVX512"] = self._has_sse_avx and not is_msvc(self)
         if is_msvc(self):
             tc.variables["USE_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
+        tc.variables["EMBREE_SYCL_SUPPORT"] = True
         tc.generate()
 
         deps = CMakeDeps(self)
