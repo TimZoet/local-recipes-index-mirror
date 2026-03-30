@@ -30,7 +30,7 @@ class Conan(ConanFile):
     def source(self):
         data = self.conan_data["sources"][self.version]
         git = Git(self)
-        git.clone(url=data["url"], target=".", args=["--recurse-submodules"])
+        git.clone(url=data["url"], target=".", args=["--recurse-submodules", "--depth 1", f"--branch {data["tag"]}"])
 
     def layout(self):
         cmake_layout(self, src_folder="src")
