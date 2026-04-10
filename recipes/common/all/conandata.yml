@@ -2,3 +2,6 @@ sources:
   2.0.0:
     tag: 2.0.0
     url: http://s-01:3000/all/common
+  test:
+    tag: test
+    url: http://s-01:3000/all/common
